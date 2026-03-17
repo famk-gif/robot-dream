@@ -1,0 +1,354 @@
+﻿:root {
+  --bg-top: #08111d;
+  --bg-bottom: #04070d;
+  --panel: rgba(9, 18, 32, 0.82);
+  --panel-strong: rgba(10, 22, 40, 0.94);
+  --panel-border: rgba(124, 175, 227, 0.18);
+  --text: #edf5ff;
+  --muted: #98abc2;
+  --accent: #67d3ff;
+  --accent-soft: rgba(103, 211, 255, 0.12);
+  --accent-green: #6ff5c2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: "Segoe UI", "PingFang SC", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(76, 119, 255, 0.2), transparent 28%),
+    radial-gradient(circle at top right, rgba(84, 255, 211, 0.12), transparent 24%),
+    linear-gradient(180deg, var(--bg-top) 0%, #07111d 42%, var(--bg-bottom) 100%);
+  overflow: hidden;
+}
+
+.app-shell {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 360px);
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.hero,
+.control-panel,
+.stage-header,
+.scene-hint,
+.scene-badge {
+  display: none;
+}
+
+.hero-copy-wrap,
+.stage-panel,
+.control-panel,
+.status-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+
+.hero-copy-wrap {
+  border-radius: 32px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-copy-wrap::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -60px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(103, 211, 255, 0.22), transparent 68%);
+  pointer-events: none;
+}
+
+.eyebrow,
+.panel-eyebrow,
+.stage-title,
+.status-label {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.hero h1,
+.panel-section h2 {
+  margin: 0;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 5vw, 4.7rem);
+  line-height: 0.95;
+  max-width: 12ch;
+}
+
+.hero-copy,
+.panel-copy,
+.stage-subtitle,
+.instruction-list {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.hero-copy {
+  margin: 18px 0 0;
+  max-width: 60ch;
+  font-size: 17px;
+}
+
+.status-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.status-card {
+  border-radius: 24px;
+  padding: 20px;
+}
+
+.status-card strong {
+  display: block;
+  font-size: 24px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  height: 100%;
+  gap: 0;
+}
+
+.stage-panel {
+  border-radius: 0;
+  padding: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stage-subtitle {
+  margin: 0;
+}
+
+.robot-stage {
+  position: relative;
+  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(92, 140, 255, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(15, 30, 52, 0.8) 0%, rgba(5, 11, 21, 0.98) 100%);
+}
+
+.robot-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,0.8), transparent 78%);
+  pointer-events: none;
+}
+
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+
+.robot-stage.dragging .scene-canvas {
+  cursor: grabbing;
+}
+
+.scene-hint,
+.scene-badge {
+  position: absolute;
+  top: 18px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(132, 160, 194, 0.18);
+  background: rgba(7, 14, 25, 0.72);
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  z-index: 2;
+}
+
+.scene-hint {
+  right: 18px;
+}
+
+.scene-badge {
+  left: 18px;
+  color: var(--accent-green);
+}
+
+.scene-overlay {
+  display: none;
+}
+
+.scene-overlay div,
+.range-card,
+.key-card {
+  border-radius: 18px;
+  border: 1px solid rgba(132, 160, 194, 0.16);
+  background: rgba(6, 12, 22, 0.68);
+}
+
+.scene-overlay div {
+  padding: 12px 14px;
+}
+
+.scene-overlay span,
+.range-card span,
+.range-card small,
+.key-card span,
+.panel-copy {
+  display: block;
+  color: var(--muted);
+}
+
+.scene-overlay strong,
+.range-card strong,
+.key-card strong {
+  display: block;
+  margin-top: 6px;
+}
+
+.control-panel {
+  border-radius: 32px;
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+  align-self: start;
+}
+
+.panel-section {
+  border-radius: 24px;
+  padding: 18px;
+  background: rgba(6, 12, 22, 0.62);
+  border: 1px solid rgba(132, 160, 194, 0.12);
+}
+
+.panel-section-accent {
+  background:
+    linear-gradient(180deg, rgba(103, 211, 255, 0.08), rgba(103, 211, 255, 0.02)),
+    rgba(6, 12, 22, 0.7);
+}
+
+.panel-copy {
+  margin: 10px 0 0;
+}
+
+.range-grid,
+.key-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.range-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.range-card,
+.key-card {
+  padding: 12px;
+}
+
+.range-card strong {
+  font-size: 20px;
+}
+
+.range-card small {
+  margin-top: 6px;
+}
+
+.key-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.key-card {
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.key-card.active {
+  border-color: rgba(111, 245, 194, 0.52);
+  background: rgba(111, 245, 194, 0.12);
+  box-shadow: 0 10px 24px rgba(28, 98, 85, 0.18);
+  transform: translateY(-2px);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 160, 194, 0.24);
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+@media (max-width: 1120px) {
+  .hero,
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    width: min(100vw - 24px, 1400px);
+    padding-top: 18px;
+  }
+
+  .hero-copy-wrap,
+  .stage-panel,
+  .control-panel,
+  .status-card {
+    border-radius: 24px;
+  }
+
+  .robot-stage {
+    min-height: 560px;
+  }
+
+  .scene-overlay,
+  .range-grid,
+  .key-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

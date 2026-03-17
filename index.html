@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wangpeng Proto Robot</title>
+    <link rel="stylesheet" href="./styles/globals.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div class="hero-copy-wrap">
+          <p class="eyebrow">Virtual Robot Prototype</p>
+          <h1>连续机械臂版 Proto Robot</h1>
+          <p class="hero-copy">双臂已经从积木式盒体调整为更自然的连续机械臂风格，上臂与前臂改成整根连杆，肘部改成关节球，末端也换成了底座加双指夹爪。</p>
+        </div>
+
+        <div class="status-stack">
+          <div class="status-card">
+            <span class="status-label">Base</span>
+            <strong id="base-status">Idle</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Reset</span>
+            <strong id="reset-status">Ready</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Arm Pose</span>
+            <strong id="arm-status">30° avg</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="stage-panel">
+          <div class="stage-header">
+            <div>
+              <p class="stage-title">3D Robot Stage</p>
+              <p class="stage-subtitle">连续机械臂外形 + 实时键盘控制 + 可拖动 3D 视角</p>
+            </div>
+          </div>
+          <div id="robot-stage" class="robot-stage"></div>
+        </div>
+
+        <aside class="control-panel" id="control-panel"></aside>
+      </section>
+    </main>
+
+    <script src="./app/app.js"></script>
+  </body>
+</html>
