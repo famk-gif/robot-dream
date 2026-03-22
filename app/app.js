@@ -118,15 +118,28 @@
   };
   const targets = { ...state };
   const jointSpeeds = {
-    leftShoulderLift: 90,
-    rightShoulderLift: 90,
-    leftShoulderRotate: 140,
-    rightShoulderRotate: 140,
-    leftElbow: 160,
-    rightElbow: 160,
-    leftGripper: 240,
-    rightGripper: 240,
+    leftShoulderLift: 70,
+    rightShoulderLift: 70,
+    leftShoulderRotate: 85,
+    rightShoulderRotate: 85,
+    leftElbow: 120,
+    rightElbow: 120,
+    leftGripper: 220,
+    rightGripper: 220,
   };
+  const jointAccels = {
+    leftShoulderLift: 160,
+    rightShoulderLift: 160,
+    leftShoulderRotate: 200,
+    rightShoulderRotate: 200,
+    leftElbow: 260,
+    rightElbow: 260,
+    leftGripper: 500,
+    rightGripper: 500,
+  };
+  const jointVelocities = Object.fromEntries(
+    Object.keys(config.limits).map((joint) => [joint, 0])
+  );
 
   const pressed = new Set();
   let dragging = false;
@@ -767,6 +780,7 @@
     Object.entries(config.limits).forEach(([joint, meta]) => {
       state[joint] = meta.initial;
       targets[joint] = meta.initial;
+      jointVelocities[joint] = 0;
     });
     state.baseMotion = 'idle';
     resetStatus.textContent = 'Reset complete';
@@ -792,6 +806,7 @@
     Object.entries(snapshot).forEach(([joint, value]) => {
       state[joint] = value;
       targets[joint] = value;
+      jointVelocities[joint] = 0;
     });
   }
 
@@ -812,58 +827,82 @@
 
   function applyWaveGesture(now) {
     const elapsed = now - gesture.start;
-    const raiseDuration = 1200;
-    const waveDuration = 1800;
-    const lowerDuration = 1200;
+    const raiseDuration = 1400;
+    const waveStep = 650;
+    const waveCycles = 2;
+    const lowerDuration = 1400;
+    const waveDuration = waveStep * waveCycles * 2;
     const totalDuration = raiseDuration + waveDuration + lowerDuration;
     gesture.duration = totalDuration;
     if (elapsed >= totalDuration) {
       stopGesture();
       return;
     }
-    const hold = gesture.snapshot || {};
-    const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-    const basePose = {
-      shoulderRotate: 52,
-      elbow: 70,
-      gripper: 12,
+    const hold = gesture.snapshot || {};
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const smooth = (t) => t * t * (3 - 2 * t);
+
+    const startPose = {
+      shoulderRotate: hold.rightShoulderRotate ?? 0,
+      elbow: hold.rightElbow ?? 5,
+      gripper: hold.rightGripper ?? 10,
+    };
+    const raisePose = {
+      shoulderRotate: 58,
+      elbow: 55,
+      gripper: 14,
+    };
+    const wavePoseA = {
+      shoulderRotate: 58,
+      elbow: 80,
+      gripper: 14,
+    };
+    const wavePoseB = {
+      shoulderRotate: 58,
+      elbow: 35,
+      gripper: 14,
     };
 
-    let shoulderRotate = basePose.shoulderRotate;
-    let elbow = basePose.elbow;
-    let gripper = basePose.gripper;
+    const keyframes = [
+      { t: 0, pose: startPose },
+      { t: raiseDuration, pose: raisePose },
+      { t: raiseDuration + waveStep, pose: wavePoseA },
+      { t: raiseDuration + waveStep * 2, pose: wavePoseB },
+      { t: raiseDuration + waveStep * 3, pose: wavePoseA },
+      { t: raiseDuration + waveStep * 4, pose: raisePose },
+      { t: totalDuration, pose: startPose },
+    ];
 
-    if (elapsed <= raiseDuration) {
-      const t = ease(elapsed / raiseDuration);
-      shoulderRotate = lerp(hold.rightShoulderRotate ?? 0, basePose.shoulderRotate, t);
-      elbow = lerp(hold.rightElbow ?? 5, basePose.elbow, t);
-      gripper = lerp(hold.rightGripper ?? 10, basePose.gripper, t);
-    } else if (elapsed <= raiseDuration + waveDuration) {
-      const t = (elapsed - raiseDuration) / waveDuration;
-      const wave = Math.sin(t * Math.PI * 6);
-      const sway = Math.sin(t * Math.PI * 3);
-      shoulderRotate = basePose.shoulderRotate + sway * 6;
-      elbow = basePose.elbow + wave * 22;
-      gripper = basePose.gripper;
-    } else {
-      const t = smoother((elapsed - raiseDuration - waveDuration) / lowerDuration);
-      shoulderRotate = lerp(basePose.shoulderRotate, hold.rightShoulderRotate ?? basePose.shoulderRotate, t);
-      elbow = lerp(basePose.elbow, hold.rightElbow ?? basePose.elbow, t);
-      gripper = lerp(basePose.gripper, hold.rightGripper ?? basePose.gripper, t);
+    let from = keyframes[0];
+    let to = keyframes[keyframes.length - 1];
+    for (let i = 0; i < keyframes.length - 1; i += 1) {
+      if (elapsed >= keyframes[i].t && elapsed <= keyframes[i + 1].t) {
+        from = keyframes[i];
+        to = keyframes[i + 1];
+        break;
+      }
     }
+
+    const span = Math.max(1, to.t - from.t);
+    const t = smooth((elapsed - from.t) / span);
+    const shoulderRotate = lerp(from.pose.shoulderRotate, to.pose.shoulderRotate, t);
+    const elbow = lerp(from.pose.elbow, to.pose.elbow, t);
+    const gripper = lerp(from.pose.gripper, to.pose.gripper, t);
 
     targets.leftShoulderLift = hold.leftShoulderLift ?? targets.leftShoulderLift;
     targets.leftShoulderRotate = hold.leftShoulderRotate ?? targets.leftShoulderRotate;
     targets.leftElbow = hold.leftElbow ?? targets.leftElbow;
     targets.leftGripper = hold.leftGripper ?? targets.leftGripper;
 
-    targets.rightShoulderRotate = shoulderRotate;
+    targets.rightShoulderRotate = clamp(
+      shoulderRotate,
+      config.limits.rightShoulderRotate.min,
+      config.limits.rightShoulderRotate.max
+    );
     targets.rightShoulderLift = hold.rightShoulderLift ?? targets.rightShoulderLift;
-    targets.rightElbow = elbow;
-    targets.rightGripper = gripper;
+    targets.rightElbow = clamp(elbow, config.limits.rightElbow.min, config.limits.rightElbow.max);
+    targets.rightGripper = clamp(gripper, config.limits.rightGripper.min, config.limits.rightGripper.max);
   }
 
   function handleSequenceInput(event) {
@@ -969,7 +1008,7 @@
 
   function loop() {
     const now = performance.now();
-    const dt = Math.min((now - lastFrame) / 1000, 0.05);
+    const dt = Math.min((now - lastFrame) / 1000, 0.05) || 1 / 60;
     lastFrame = now;
     updateMotion();
     if (gesture.active) {
@@ -977,8 +1016,34 @@
     }
     Object.entries(config.limits).forEach(([joint]) => {
       const speed = jointSpeeds[joint] || 80;
-      const maxDelta = speed * dt;
-      state[joint] = moveToward(state[joint], targets[joint], maxDelta);
+      const accel = jointAccels[joint] || 200;
+      const current = state[joint];
+      const target = targets[joint];
+      const delta = target - current;
+      const limits = config.limits[joint];
+      const range = Math.max(1, limits.max - limits.min);
+      const nearEdge = Math.min(
+        (current - limits.min) / range,
+        (limits.max - current) / range
+      );
+      const edgeFactor = clamp((nearEdge - 0.12) / 0.18, 0, 1);
+      const torqueScale = 0.45 + 0.55 * edgeFactor;
+      const desiredVel = Math.abs(delta) < 0.0001
+        ? 0
+        : clamp(delta / dt, -speed * torqueScale, speed * torqueScale);
+      const nextVel = moveToward(jointVelocities[joint], desiredVel, accel * torqueScale * dt);
+      let nextPos = current + nextVel * dt;
+      if (delta !== 0 && Math.sign(delta) !== Math.sign(target - nextPos)) {
+        nextPos = target;
+        jointVelocities[joint] = 0;
+      } else {
+        jointVelocities[joint] = nextVel;
+      }
+      if (edgeFactor < 0.6 && Math.abs(nextVel) > 0.01) {
+        const jitter = (0.6 - edgeFactor) * 0.12;
+        nextPos += Math.sin(now / 55 + current) * jitter;
+      }
+      state[joint] = clamp(nextPos, limits.min, limits.max);
     });
     draw();
     requestAnimationFrame(loop);
