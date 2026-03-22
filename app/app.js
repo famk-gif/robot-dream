@@ -120,22 +120,30 @@
   const jointSpeeds = {
     leftShoulderLift: 70,
     rightShoulderLift: 70,
-    leftShoulderRotate: 85,
-    rightShoulderRotate: 85,
+    leftShoulderRotate: 90,
+    rightShoulderRotate: 90,
     leftElbow: 120,
     rightElbow: 120,
-    leftGripper: 220,
-    rightGripper: 220,
+    leftGripper: 200,
+    rightGripper: 200,
   };
   const jointAccels = {
     leftShoulderLift: 160,
     rightShoulderLift: 160,
-    leftShoulderRotate: 200,
-    rightShoulderRotate: 200,
-    leftElbow: 260,
-    rightElbow: 260,
-    leftGripper: 500,
-    rightGripper: 500,
+    leftShoulderRotate: 190,
+    rightShoulderRotate: 190,
+    leftElbow: 240,
+    rightElbow: 240,
+    leftGripper: 460,
+    rightGripper: 460,
+  };
+  const jointTorqueBias = {
+    leftShoulderRotate: 1.0,
+    rightShoulderRotate: 1.0,
+    leftElbow: 0.85,
+    rightElbow: 0.85,
+    leftGripper: 0.7,
+    rightGripper: 0.7,
   };
   const jointVelocities = Object.fromEntries(
     Object.keys(config.limits).map((joint) => [joint, 0])
@@ -502,8 +510,8 @@
   function makeWheel(center, spin) {
     const result = [];
     const steps = 16;
-    const radius = 0.44;
-    const thickness = 0.2;
+    const radius = 0.32;
+    const thickness = 0.16;
 
     for (let i = 0; i < steps; i += 1) {
       const start = (i / steps) * Math.PI * 2 + spin;
@@ -524,8 +532,8 @@
     const hub = [];
     for (let i = 0; i < steps; i += 1) {
       const angle = (i / steps) * Math.PI * 2;
-      disc.push({ x: center.x + thickness, y: center.y + Math.cos(angle) * 0.32, z: center.z + Math.sin(angle) * 0.32 });
-      hub.push({ x: center.x + thickness + 0.01, y: center.y + Math.cos(angle) * 0.14, z: center.z + Math.sin(angle) * 0.14 });
+      disc.push({ x: center.x + thickness, y: center.y + Math.cos(angle) * 0.23, z: center.z + Math.sin(angle) * 0.23 });
+      hub.push({ x: center.x + thickness + 0.01, y: center.y + Math.cos(angle) * 0.1, z: center.z + Math.sin(angle) * 0.1 });
     }
     result.push(polygon(disc, '#1f3348'));
     result.push(polygon(hub, '#7be7ff', 'rgba(255,255,255,0.16)'));
@@ -558,43 +566,43 @@
     const handColor = '#26384d';
     const jointColor = '#7ae9c2';
 
-    const armScale = 0.85;
-    const shoulderLocal = { x: sign * 1.05, y: 2.7, z: 0 };
+    const armScale = 0.78;
+    const shoulderLocal = { x: sign * 0.82, y: 2.55, z: 0 };
     const xoyRotate = rad(xoyLift * sign * 0.95);
     const yozRotate = rad(yozLift * -0.92);
-    const elbowPitch = rad((elbow - 15) * -0.92);
+    const elbowPitch = rad((elbow - 5) * -0.92);
 
     const shoulderMatrix = matMul(rotMatX(yozRotate), rotMatZ(xoyRotate));
     const elbowMatrix = matMul(shoulderMatrix, rotMatX(elbowPitch));
 
     const elbowLocal = transform(
-      { x: sign * 0.34, y: -1.14 * armScale, z: 0 },
+      { x: 0, y: -1.14 * armScale, z: 0 },
       { matrix: shoulderMatrix },
       shoulderLocal
     );
     const wristLocal = transform(
-      { x: sign * 0.34, y: -1.14 * armScale, z: 0 },
+      { x: 0, y: -1.14 * armScale, z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const handLocal = transform(
-      { x: sign * 0.42, y: -1.34 * armScale, z: 0 },
+      { x: 0, y: -1.34 * armScale, z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerBaseLocal = transform(
-      { x: sign * 0.46, y: -1.46 * armScale, z: 0 },
+      { x: 0, y: -1.46 * armScale, z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerOpen = 0.04 + gripRatio * 0.12;
     const fingerALocal = transform(
-      { x: sign * 0.52, y: -1.56 * armScale, z: fingerOpen },
+      { x: 0, y: -1.56 * armScale, z: fingerOpen },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerBLocal = transform(
-      { x: sign * 0.52, y: -1.56 * armScale, z: -fingerOpen },
+      { x: 0, y: -1.56 * armScale, z: -fingerOpen },
       { matrix: elbowMatrix },
       elbowLocal
     );
@@ -642,19 +650,19 @@
     const offset = { x: state.baseX / 55, y: 0, z: state.baseY / 55 };
     const faces = [];
 
-    addBoxToScene(faces, { x: 0, y: 0.31, z: 0 }, { x: 3.7, y: 0.62, z: 3.7 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 1.05, z: 0 }, { x: 0.72, y: 1.1, z: 0.72 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 2.05, z: 0 }, { x: 2.0, y: 2.0, z: 1.4 }, {}, '#9fc6ff', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 3.35, z: 0 }, { x: 0.4, y: 0.4, z: 0.4 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 3.85, z: 0 }, { x: 1.0, y: 1.0, z: 0.9 }, {}, '#eef7ff', heading, offset);
-    addBoxToScene(faces, { x: -0.18, y: 4.0, z: 0.46 }, { x: 0.12, y: 0.12, z: 0.08 }, {}, '#182535', heading, offset);
-    addBoxToScene(faces, { x: 0.18, y: 4.0, z: 0.46 }, { x: 0.12, y: 0.12, z: 0.08 }, {}, '#182535', heading, offset);
+    addBoxToScene(faces, { x: 0, y: 0.24, z: 0 }, { x: 2.6, y: 0.48, z: 2.6 }, {}, '#26384d', heading, offset);
+    addBoxToScene(faces, { x: 0, y: 0.8, z: 0 }, { x: 0.58, y: 0.82, z: 0.58 }, {}, '#26384d', heading, offset);
+    addBoxToScene(faces, { x: 0, y: 1.85, z: 0 }, { x: 1.6, y: 1.7, z: 1.05 }, {}, '#9fc6ff', heading, offset);
+    addBoxToScene(faces, { x: 0, y: 2.95, z: 0 }, { x: 0.32, y: 0.32, z: 0.32 }, {}, '#26384d', heading, offset);
+    addBoxToScene(faces, { x: 0, y: 3.35, z: 0 }, { x: 0.8, y: 0.8, z: 0.72 }, {}, '#eef7ff', heading, offset);
+    addBoxToScene(faces, { x: -0.14, y: 3.5, z: 0.4 }, { x: 0.1, y: 0.1, z: 0.07 }, {}, '#182535', heading, offset);
+    addBoxToScene(faces, { x: 0.14, y: 3.5, z: 0.4 }, { x: 0.1, y: 0.1, z: 0.07 }, {}, '#182535', heading, offset);
 
     const wheels = [
-      { x: -1.86, y: 0.44, z: 1.86 },
-      { x: 1.86, y: 0.44, z: 1.86 },
-      { x: -1.86, y: 0.44, z: -1.86 },
-      { x: 1.86, y: 0.44, z: -1.86 },
+      { x: -1.25, y: 0.32, z: 1.25 },
+      { x: 1.25, y: 0.32, z: 1.25 },
+      { x: -1.25, y: 0.32, z: -1.25 },
+      { x: 1.25, y: 0.32, z: -1.25 },
     ].map((point) => worldPoint(point, heading, offset));
 
     const spin = state.baseMotion === 'forward' ? -0.34 : state.baseMotion === 'reverse' ? 0.34 : 0;
@@ -731,6 +739,26 @@
   function updateMotion() {
     const reverse = pressed.has('shift');
     state.baseMotion = 'idle';
+    const moveStep = 1.35;
+    const turnStep = 0.7;
+
+    if (pressed.has('arrowup')) {
+      const direction = reverse ? -1 : 1;
+      const heading = rad(state.baseHeading);
+      state.baseX += Math.sin(heading) * moveStep * direction;
+      state.baseY += Math.cos(heading) * moveStep * direction;
+      state.baseMotion = direction > 0 ? 'forward' : 'reverse';
+    }
+
+    if (pressed.has('arrowleft')) {
+      state.baseHeading -= turnStep;
+      state.baseMotion = 'turn-left';
+    }
+
+    if (pressed.has('arrowright')) {
+      state.baseHeading += turnStep;
+      state.baseMotion = 'turn-right';
+    }
 
     [
       ['a', 'leftShoulderRotate', 1],
@@ -940,7 +968,7 @@
   window.addEventListener('keydown', (event) => {
     handleSequenceInput(event);
     const key = keyName(event);
-    if (!['shift', 'a', 'd', 'z', 'c', 'q', 'e', 's'].includes(key)) {
+    if (!['shift', 'a', 'd', 'z', 'c', 'q', 'e', 's', 'arrowup', 'arrowleft', 'arrowright'].includes(key)) {
       return;
     }
 
@@ -1027,7 +1055,8 @@
         (limits.max - current) / range
       );
       const edgeFactor = clamp((nearEdge - 0.12) / 0.18, 0, 1);
-      const torqueScale = 0.45 + 0.55 * edgeFactor;
+      const torqueBias = jointTorqueBias[joint] ?? 1;
+      const torqueScale = clamp((0.45 + 0.55 * edgeFactor) * torqueBias, 0.3, 1);
       const desiredVel = Math.abs(delta) < 0.0001
         ? 0
         : clamp(delta / dt, -speed * torqueScale, speed * torqueScale);
@@ -1040,7 +1069,7 @@
         jointVelocities[joint] = nextVel;
       }
       if (edgeFactor < 0.6 && Math.abs(nextVel) > 0.01) {
-        const jitter = (0.6 - edgeFactor) * 0.12;
+        const jitter = (0.6 - edgeFactor) * 0.12 * (1.15 - torqueBias);
         nextPos += Math.sin(now / 55 + current) * jitter;
       }
       state[joint] = clamp(nextPos, limits.min, limits.max);
