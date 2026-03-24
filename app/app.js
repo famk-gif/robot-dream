@@ -43,6 +43,46 @@
     ],
   };
 
+  const mm = (value) => value * 0.01; // 1 unit = 100mm
+  const wheel = {
+    radius: mm(30),
+    thickness: mm(16),
+  };
+  const sizes = {
+    base: { x: mm(260), y: mm(40), z: mm(260) },
+    column: { x: mm(90), y: mm(70), z: mm(90) },
+    chest: { x: mm(160), y: mm(140), z: mm(120) },
+    neck: { x: mm(60), y: mm(20), z: mm(60) },
+    head: { x: mm(90), y: mm(80), z: mm(90) },
+  };
+  const wheelMount = {
+    x: wheel.thickness * 2 + mm(12),
+    y: mm(30),
+    z: mm(70),
+  };
+  const baseLift = wheel.radius * 2;
+  const layout = {
+    baseCenterY: sizes.base.y / 2 + baseLift,
+    columnCenterY: baseLift + sizes.base.y + sizes.column.y / 2,
+    chestCenterY: baseLift + sizes.base.y + sizes.column.y + sizes.chest.y / 2,
+    neckCenterY: baseLift + sizes.base.y + sizes.column.y + sizes.chest.y + sizes.neck.y / 2,
+    headCenterY: baseLift + sizes.base.y + sizes.column.y + sizes.chest.y + sizes.neck.y + sizes.head.y / 2,
+  };
+  const armDims = {
+    upper: mm(85),
+    lower: mm(85),
+    shoulderX: mm(180 / 2),
+    shoulderY: baseLift + sizes.base.y + sizes.column.y + sizes.chest.y - mm(6),
+    upperRadius: mm(22),
+    lowerRadius: mm(18),
+    wrist: mm(14),
+    hand: mm(8),
+    fingerBase: { x: mm(12), y: mm(14), z: mm(12) },
+    finger: { x: mm(6), y: mm(14), z: mm(6) },
+    fingerBaseOffset: mm(10),
+    fingerOffset: mm(22),
+  };
+
   const stage = document.getElementById('robot-stage');
   const panel = document.getElementById('control-panel');
   const baseStatus = document.getElementById('base-status');
@@ -507,21 +547,22 @@
     return faces.map((face) => polygon(face.idx.map((index) => vertices[index]), shade(color, face.shade)));
   }
 
-  function makeWheel(center, spin) {
+  function makeWheel(center, spin, isRight = false) {
     const result = [];
     const steps = 16;
-    const radius = 0.32;
-    const thickness = 0.16;
+    const radius = wheel.radius;
+    const thickness = wheel.thickness;
+    const offset = isRight ? thickness : -thickness;
 
     for (let i = 0; i < steps; i += 1) {
       const start = (i / steps) * Math.PI * 2 + spin;
       const end = ((i + 1) / steps) * Math.PI * 2 + spin;
       result.push(polygon(
         [
-          { x: center.x - thickness, y: center.y + Math.cos(start) * radius, z: center.z + Math.sin(start) * radius },
-          { x: center.x - thickness, y: center.y + Math.cos(end) * radius, z: center.z + Math.sin(end) * radius },
-          { x: center.x + thickness, y: center.y + Math.cos(end) * radius, z: center.z + Math.sin(end) * radius },
-          { x: center.x + thickness, y: center.y + Math.cos(start) * radius, z: center.z + Math.sin(start) * radius },
+          { x: center.x + offset, y: center.y + Math.cos(start) * radius, z: center.z + Math.sin(start) * radius },
+          { x: center.x + offset, y: center.y + Math.cos(end) * radius, z: center.z + Math.sin(end) * radius },
+          { x: center.x + offset + thickness * (isRight ? 2 : -2), y: center.y + Math.cos(end) * radius, z: center.z + Math.sin(end) * radius },
+          { x: center.x + offset + thickness * (isRight ? 2 : -2), y: center.y + Math.cos(start) * radius, z: center.z + Math.sin(start) * radius },
         ],
         shade('#121926', 0.72 + (i % 2) * 0.08),
         'rgba(255,255,255,0.04)'
@@ -532,8 +573,8 @@
     const hub = [];
     for (let i = 0; i < steps; i += 1) {
       const angle = (i / steps) * Math.PI * 2;
-      disc.push({ x: center.x + thickness, y: center.y + Math.cos(angle) * 0.23, z: center.z + Math.sin(angle) * 0.23 });
-      hub.push({ x: center.x + thickness + 0.01, y: center.y + Math.cos(angle) * 0.1, z: center.z + Math.sin(angle) * 0.1 });
+      disc.push({ x: center.x + offset + thickness * (isRight ? 2 : -2), y: center.y + Math.cos(angle) * radius * 0.72, z: center.z + Math.sin(angle) * radius * 0.72 });
+      hub.push({ x: center.x + offset + thickness * (isRight ? 2 : -2) + 0.01, y: center.y + Math.cos(angle) * radius * 0.32, z: center.z + Math.sin(angle) * radius * 0.32 });
     }
     result.push(polygon(disc, '#1f3348'));
     result.push(polygon(hub, '#7be7ff', 'rgba(255,255,255,0.16)'));
@@ -566,8 +607,7 @@
     const handColor = '#26384d';
     const jointColor = '#7ae9c2';
 
-    const armScale = 0.78;
-    const shoulderLocal = { x: sign * 0.82, y: 2.55, z: 0 };
+    const shoulderLocal = { x: sign * armDims.shoulderX, y: armDims.shoulderY, z: 0 };
     const xoyRotate = rad(xoyLift * sign * 0.95);
     const yozRotate = rad(yozLift * -0.92);
     const elbowPitch = rad((elbow - 5) * -0.92);
@@ -576,33 +616,33 @@
     const elbowMatrix = matMul(shoulderMatrix, rotMatX(elbowPitch));
 
     const elbowLocal = transform(
-      { x: 0, y: -1.14 * armScale, z: 0 },
+      { x: 0, y: -armDims.upper, z: 0 },
       { matrix: shoulderMatrix },
       shoulderLocal
     );
     const wristLocal = transform(
-      { x: 0, y: -1.14 * armScale, z: 0 },
+      { x: 0, y: -armDims.lower, z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const handLocal = transform(
-      { x: 0, y: -1.34 * armScale, z: 0 },
+      { x: 0, y: -(armDims.lower + mm(18)), z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerBaseLocal = transform(
-      { x: 0, y: -1.46 * armScale, z: 0 },
+      { x: 0, y: -(armDims.lower + armDims.fingerBaseOffset), z: 0 },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerOpen = 0.04 + gripRatio * 0.12;
     const fingerALocal = transform(
-      { x: 0, y: -1.56 * armScale, z: fingerOpen },
+      { x: 0, y: -(armDims.lower + armDims.fingerOffset), z: fingerOpen },
       { matrix: elbowMatrix },
       elbowLocal
     );
     const fingerBLocal = transform(
-      { x: 0, y: -1.56 * armScale, z: -fingerOpen },
+      { x: 0, y: -(armDims.lower + armDims.fingerOffset), z: -fingerOpen },
       { matrix: elbowMatrix },
       elbowLocal
     );
@@ -634,14 +674,14 @@
 
     return [
       ...makeSphere(shoulder, 0.11, jointColor, 8, 5),
-      ...makeCylinder(upper, { x: 0.26, y: 1.0 * armScale, z: 0.26 }, upperWorldRotation, armColor, 10),
+      ...makeCylinder(upper, { x: armDims.upperRadius, y: armDims.upper, z: armDims.upperRadius }, upperWorldRotation, armColor, 10),
       ...makeSphere(elbowJoint, 0.1, jointColor, 8, 5),
-      ...makeCylinder(lower, { x: 0.22, y: 0.96 * armScale, z: 0.22 }, forearmWorldRotation, armColor, 10),
-      ...makeBox(wrist, { x: 0.14, y: 0.14, z: 0.14 }, forearmWorldRotation, armColor),
-      ...makeBox(hand, { x: 0.2, y: 0.2, z: 0.2 }, forearmWorldRotation, handColor),
-      ...makeBox(fingerBase, { x: 0.18, y: 0.12, z: 0.18 }, forearmWorldRotation, jointColor),
-      ...makeBox(fingerA, { x: 0.08, y: 0.28 * armScale, z: 0.08 }, forearmWorldRotation, jointColor),
-      ...makeBox(fingerB, { x: 0.08, y: 0.28 * armScale, z: 0.08 }, forearmWorldRotation, jointColor),
+      ...makeCylinder(lower, { x: armDims.lowerRadius, y: armDims.lower, z: armDims.lowerRadius }, forearmWorldRotation, armColor, 10),
+      ...makeBox(wrist, { x: armDims.wrist, y: armDims.wrist, z: armDims.wrist }, forearmWorldRotation, armColor),
+      ...makeBox(hand, { x: armDims.hand, y: armDims.hand, z: armDims.hand }, forearmWorldRotation, handColor),
+      ...makeBox(fingerBase, armDims.fingerBase, forearmWorldRotation, jointColor),
+      ...makeBox(fingerA, armDims.finger, forearmWorldRotation, jointColor),
+      ...makeBox(fingerB, armDims.finger, forearmWorldRotation, jointColor),
     ];
   }
 
@@ -650,24 +690,59 @@
     const offset = { x: state.baseX / 55, y: 0, z: state.baseY / 55 };
     const faces = [];
 
-    addBoxToScene(faces, { x: 0, y: 0.24, z: 0 }, { x: 2.6, y: 0.48, z: 2.6 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 0.8, z: 0 }, { x: 0.58, y: 0.82, z: 0.58 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 1.85, z: 0 }, { x: 1.6, y: 1.7, z: 1.05 }, {}, '#9fc6ff', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 2.95, z: 0 }, { x: 0.32, y: 0.32, z: 0.32 }, {}, '#26384d', heading, offset);
-    addBoxToScene(faces, { x: 0, y: 3.35, z: 0 }, { x: 0.8, y: 0.8, z: 0.72 }, {}, '#eef7ff', heading, offset);
-    addBoxToScene(faces, { x: -0.14, y: 3.5, z: 0.4 }, { x: 0.1, y: 0.1, z: 0.07 }, {}, '#182535', heading, offset);
-    addBoxToScene(faces, { x: 0.14, y: 3.5, z: 0.4 }, { x: 0.1, y: 0.1, z: 0.07 }, {}, '#182535', heading, offset);
+    addBoxToScene(faces, { x: 0, y: layout.baseCenterY, z: 0 }, sizes.base, {}, '#26384d', heading, offset);
+    const mountY = (baseLift + wheel.radius) / 2;
+    const mountCenterX = sizes.base.x / 2 + wheelMount.x / 2;
+    addBoxToScene(
+      faces,
+      { x: mountCenterX, y: mountY, z: 0 },
+      wheelMount,
+      {},
+      '#1f2b3b',
+      heading,
+      offset
+    );
+    addBoxToScene(
+      faces,
+      { x: -mountCenterX, y: mountY, z: 0 },
+      wheelMount,
+      {},
+      '#1f2b3b',
+      heading,
+      offset
+    );
+    addBoxToScene(faces, { x: 0, y: layout.columnCenterY, z: 0 }, sizes.column, {}, '#26384d', heading, offset);
+    addBoxToScene(faces, { x: 0, y: layout.chestCenterY, z: 0 }, sizes.chest, {}, '#9fc6ff', heading, offset);
+    addBoxToScene(faces, { x: 0, y: layout.neckCenterY, z: 0 }, sizes.neck, {}, '#26384d', heading, offset);
+    addBoxToScene(faces, { x: 0, y: layout.headCenterY, z: 0 }, sizes.head, {}, '#eef7ff', heading, offset);
+    addBoxToScene(
+      faces,
+      { x: -mm(14), y: layout.headCenterY + sizes.head.y * 0.1, z: sizes.head.z / 2 + mm(5) },
+      { x: mm(10), y: mm(10), z: mm(7) },
+      {},
+      '#182535',
+      heading,
+      offset
+    );
+    addBoxToScene(
+      faces,
+      { x: mm(14), y: layout.headCenterY + sizes.head.y * 0.1, z: sizes.head.z / 2 + mm(5) },
+      { x: mm(10), y: mm(10), z: mm(7) },
+      {},
+      '#182535',
+      heading,
+      offset
+    );
 
-    const wheels = [
-      { x: -1.25, y: 0.32, z: 1.25 },
-      { x: 1.25, y: 0.32, z: 1.25 },
-      { x: -1.25, y: 0.32, z: -1.25 },
-      { x: 1.25, y: 0.32, z: -1.25 },
+    const wheelOffset = Math.max(0.7, sizes.base.x / 2 - mm(26));
+    const wheelCenters = [
+      { x: -sizes.base.x / 2 - wheelMount.x + wheel.thickness, y: wheel.radius, z: 0 },
+      { x: sizes.base.x / 2 + wheelMount.x - wheel.thickness, y: wheel.radius, z: 0 },
     ].map((point) => worldPoint(point, heading, offset));
 
     const spin = state.baseMotion === 'forward' ? -0.34 : state.baseMotion === 'reverse' ? 0.34 : 0;
-    wheels.forEach((center, index) => {
-      faces.push(...makeWheel(center, spin * (index + 1)));
+    wheelCenters.forEach((center, index) => {
+      faces.push(...makeWheel(center, spin * (index + 1), index === 1));
     });
 
     faces.push(...buildArmFaces('left', heading, offset));
