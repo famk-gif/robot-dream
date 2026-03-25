@@ -4,8 +4,31 @@
 
 import sys
 import time
-import uselect
-from machine import Pin, PWM
+try:
+    import uselect  # MicroPython only
+    from machine import Pin, PWM  # MicroPython only
+except Exception:
+    # Stubs for editor/linting on desktop Python
+    uselect = None
+
+    class Pin:
+        OUT = 0
+
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def value(self, *args, **kwargs):
+            return 0
+
+    class PWM:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def freq(self, *args, **kwargs):
+            pass
+
+        def duty_u16(self, *args, **kwargs):
+            pass
 
 
 def clamp(value, lo, hi):
