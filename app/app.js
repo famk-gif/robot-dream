@@ -35,9 +35,9 @@
       },
       {
         title: '复位',
-        description: '按住 S 三秒，把双臂角度恢复到初始姿态。',
+        description: '按住 S 三秒，按关节顺序缓慢复位。',
         keys: [
-          { key: 'S', code: 's', action: '长按 3 秒复位双臂' },
+          { key: 'S', code: 's', action: '长按 3 秒逐关节复位' },
         ],
       },
     ],
@@ -203,6 +203,13 @@
     start: 0,
     duration: 4400,
     snapshot: null,
+  };
+  const resetSequence = {
+    active: false,
+    order: ['leftShoulderRotate', 'rightShoulderRotate', 'leftElbow', 'rightElbow', 'leftGripper', 'rightGripper'],
+    index: 0,
+    current: null,
+    pauseUntil: 0,
   };
   let lastFrame = performance.now();
 
@@ -835,21 +842,23 @@
       state.baseMotion = 'turn-right';
     }
 
-    [
-      ['a', 'leftShoulderRotate', 1],
-      ['d', 'rightShoulderRotate', 1],
-      ['z', 'leftElbow', 1],
-      ['c', 'rightElbow', 1],
-      ['q', 'leftGripper', 1],
-      ['e', 'rightGripper', 1],
-    ].forEach(([key, joint, dir]) => {
-      if (!pressed.has(key)) {
-        return;
-      }
-      const meta = config.limits[joint];
-      const direction = (reverse ? -1 : 1) * dir;
-      targets[joint] = clamp(targets[joint] + meta.step * direction, meta.min, meta.max);
-    });
+    if (!resetSequence.active) {
+      [
+        ['a', 'leftShoulderRotate', 1],
+        ['d', 'rightShoulderRotate', 1],
+        ['z', 'leftElbow', 1],
+        ['c', 'rightElbow', 1],
+        ['q', 'leftGripper', 1],
+        ['e', 'rightGripper', 1],
+      ].forEach(([key, joint, dir]) => {
+        if (!pressed.has(key)) {
+          return;
+        }
+        const meta = config.limits[joint];
+        const direction = (reverse ? -1 : 1) * dir;
+        targets[joint] = clamp(targets[joint] + meta.step * direction, meta.min, meta.max);
+      });
+    }
   }
 
   function keyName(event) {
@@ -880,13 +889,52 @@
   }
 
   function resetPose() {
-    Object.entries(config.limits).forEach(([joint, meta]) => {
-      state[joint] = meta.initial;
-      targets[joint] = meta.initial;
+    resetSequence.active = true;
+    resetSequence.index = 0;
+    resetSequence.current = null;
+    resetSequence.pauseUntil = 0;
+    resetStatus.textContent = 'Resetting...';
+  }
+
+  function stopResetSequence() {
+    if (!resetSequence.active) {
+      return;
+    }
+    resetSequence.active = false;
+    resetSequence.current = null;
+    resetSequence.pauseUntil = 0;
+    resetStatus.textContent = 'Ready';
+  }
+
+  function updateResetSequence(now) {
+    if (!resetSequence.active) {
+      return;
+    }
+    if (gesture.active) {
+      stopGesture();
+    }
+    if (resetSequence.pauseUntil && now < resetSequence.pauseUntil) {
+      return;
+    }
+    if (!resetSequence.current) {
+      if (resetSequence.index >= resetSequence.order.length) {
+        resetSequence.active = false;
+        resetStatus.textContent = 'Reset complete';
+        return;
+      }
+      resetSequence.current = resetSequence.order[resetSequence.index];
+      resetSequence.pauseUntil = 0;
+    }
+    const joint = resetSequence.current;
+    const target = config.limits[joint].initial;
+    targets[joint] = target;
+    if (Math.abs(state[joint] - target) < 0.6) {
+      state[joint] = target;
       jointVelocities[joint] = 0;
-    });
-    state.baseMotion = 'idle';
-    resetStatus.textContent = 'Reset complete';
+      resetSequence.index += 1;
+      resetSequence.current = null;
+      resetSequence.pauseUntil = now + 160;
+    }
   }
 
   function captureArmState() {
@@ -1050,6 +1098,9 @@
     if (gesture.active && ['q', 'e', 'a', 'd', 'z', 'c'].includes(key)) {
       stopGesture();
     }
+    if (resetSequence.active && ['q', 'e', 'a', 'd', 'z', 'c'].includes(key)) {
+      stopResetSequence();
+    }
 
     event.preventDefault();
     if (!pressed.has(key)) {
@@ -1073,7 +1124,9 @@
 
     if (key === 's') {
       clearResetCountdown();
-      resetStatus.textContent = 'Ready';
+      if (!resetSequence.active) {
+        resetStatus.textContent = 'Ready';
+      }
     }
   });
 
@@ -1082,6 +1135,7 @@
     pressed.clear();
     clearResetCountdown();
     resetStatus.textContent = 'Ready';
+    stopResetSequence();
     state.baseMotion = 'idle';
   });
 
@@ -1114,6 +1168,7 @@
     const dt = Math.min((now - lastFrame) / 1000, 0.05) || 1 / 60;
     lastFrame = now;
     updateMotion();
+    updateResetSequence(now);
     if (gesture.active) {
       applyWaveGesture(now);
     }
