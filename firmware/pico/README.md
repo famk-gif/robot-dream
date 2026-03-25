@@ -79,10 +79,16 @@ GPIO 线序（舵机）：
 4. 无硬件演示：python voice_control.py --dry-run
 
 语音示例：
-- “你好 / hello” -> hi
-- “左肩 / left shoulder” -> a
+- “你好 / hello / 挥手” -> hi
+- “帮我抬左手 / left arm up” -> a
 - “右肘 / right elbow” -> c
-- “前进 / forward” -> base forward
-- “停止 / stop” -> stop
+- “前进 / 向前 / forward” -> base forward
+- “停 / 停止 / stop” -> stop
+- “向左转 / turn left” -> base left
+
+自然语言小技巧：
+1. 不说专业词也可以，例如“抬左手”“右肘弯一点”“向前走”。  
+2. 说“再/多一点”会多执行几步；说“很多/大一点”会执行更多步。  
+3. 未说明左右时默认右侧。  
 
 可选：将 `WAKE_ENABLED = True` 打开后，需要说“robot / 机器人”作为唤醒词。
