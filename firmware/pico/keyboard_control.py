@@ -70,9 +70,11 @@ STOP_TIMEOUT_S = 0.2
 def print_help(dry_run):
     print("Keyboard control ready:")
     print("  a d z c q e  -> hold to move, release to stop")
+    print("  arrow keys   -> base forward/reverse/left/right")
     print("  h -> hi (wave)")
     print("  r -> reset")
     print("  s -> stop")
+    print("  x -> base stop")
     print("  ESC -> exit")
     if dry_run:
         print("  DRY RUN: commands are printed, no serial output")
@@ -116,6 +118,28 @@ def main():
                 elif key in SPECIAL:
                     sender.send(SPECIAL[key])
                     last_move_time = 0.0
+                    stop_sent = False
+                elif key == 'x':
+                    sender.send('base stop')
+                    last_move_time = 0.0
+                    stop_sent = False
+            elif ch in (b'\xe0', b'\x00'):
+                arrow = msvcrt.getch()
+                if arrow == b'H':  # up
+                    sender.send('base forward')
+                    last_move_time = now
+                    stop_sent = False
+                elif arrow == b'P':  # down
+                    sender.send('base reverse')
+                    last_move_time = now
+                    stop_sent = False
+                elif arrow == b'K':  # left
+                    sender.send('base left')
+                    last_move_time = now
+                    stop_sent = False
+                elif arrow == b'M':  # right
+                    sender.send('base right')
+                    last_move_time = now
                     stop_sent = False
 
             if last_move_time > 0.0 and not stop_sent and (now - last_move_time) > STOP_TIMEOUT_S:

@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .box { fill: #ffffff; stroke: #2b3a4b; stroke-width: 2; rx: 14; }
+      .title { font: 22px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 700; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .hint { font: 13px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="720" class="bg" />
+  <rect x="40" y="40" width="1120" height="640" class="box" />
+  <text x="70" y="90" class="title">步骤 10：接线与测试</text>
+  <text x="70" y="120" class="hint">先单个舵机测试，再逐个接入，最后封闭外壳。</text>
+    <rect x="200" y="230" width="160" height="80" class="box" />
+  <text x="220" y="265" class="label">Pico</text>
+  <rect x="420" y="200" width="200" height="140" class="box" />
+  <text x="440" y="240" class="label">舵机组</text>
+  <text x="440" y="270" class="small">逐个测试</text>
+  <line x1="360" y1="270" x2="420" y2="260" stroke="#2b3a4b" stroke-width="2" />
+</svg>

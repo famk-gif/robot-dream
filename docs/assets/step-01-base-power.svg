@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .box { fill: #ffffff; stroke: #2b3a4b; stroke-width: 2; rx: 14; }
+      .title { font: 22px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 700; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .hint { font: 13px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="720" class="bg" />
+  <rect x="40" y="40" width="1120" height="640" class="box" />
+  <text x="70" y="90" class="title">步骤 1：底盘下盖 + 电源座 + 开关</text>
+  <text x="70" y="120" class="hint">先把电源座和开关装进底盘下盖。</text>
+    <rect x="120" y="200" width="420" height="220" class="box" />
+  <text x="140" y="230" class="label">底盘下盖</text>
+  <rect x="180" y="300" width="90" height="40" class="box" />
+  <text x="190" y="325" class="small">电源座</text>
+  <rect x="320" y="300" width="90" height="40" class="box" />
+  <text x="335" y="325" class="small">开关</text>
+</svg>

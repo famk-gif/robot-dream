@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>手把手装配图解</title>
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; margin: 32px; color: #1b2533; }
+  h1 { font-size: 26px; margin-bottom: 16px; }
+  h2 { font-size: 20px; margin-top: 28px; }
+  ol { padding-left: 22px; line-height: 1.6; }
+  img { max-width: 100%; height: auto; border: 1px solid #e2e7ef; border-radius: 8px; padding: 8px; background: #fff; }
+  .note { color:#42566b; font-size:12px; margin-top: 18px; }
+</style>
+</head>
+<body>
+  <h1>手把手装配图解（每步一张图）</h1>
+
+  <h2>零经验装配流程（文字版）</h2>
+  <ol>
+    <li>核对打印件是否齐全，按类别分好（底盘、立柱、胸腔、手臂、头部）。</li>
+    <li>先试拼结构件，不装舵机，确认孔位与配合无干涉。</li>
+    <li>装热熔铜柱（M3），确保后续反复拆装不滑牙。</li>
+    <li>组装底盘下盖，电源/电池座/开关位置先定位。</li>
+    <li>轮子与支架先装好，再盖上底盘上盖。</li>
+    <li>立柱与胸腔先空装，确认高度与结构稳定。</li>
+    <li>舵机先上电到“中位”再安装（这是虚拟与现实一致的关键）。</li>
+    <li>先装肩部 MG996R，再装上臂结构。</li>
+    <li>再装肘部舵机与前臂，检查旋转是否顺畅。</li>
+    <li>安装夹爪 MG90S，确保不会卡住或磨擦。</li>
+    <li>理线与固定，避免线束进入关节活动范围。</li>
+    <li>上电测试：先单个舵机，再整体动作；不一致就校准 <code>invert</code> 或 <code>servo_min/max</code>。</li>
+  </ol>
+
+  <h2>步骤 1：底盘下盖 + 电源座 + 开关</h2>
+  <img src="assets/step-01-base-power.svg" alt="步骤1" />
+  <h2>步骤 2：轮子 + 支架</h2>
+  <img src="assets/step-02-wheels.svg" alt="步骤2" />
+  <h2>步骤 3：底盘上盖</h2>
+  <img src="assets/step-03-base-top.svg" alt="步骤3" />
+  <h2>步骤 4：立柱拼接</h2>
+  <img src="assets/step-04-column.svg" alt="步骤4" />
+  <h2>步骤 5：胸腔半封闭</h2>
+  <img src="assets/step-05-chest.svg" alt="步骤5" />
+  <h2>步骤 6：肩部 MG996R</h2>
+  <img src="assets/step-06-shoulder.svg" alt="步骤6" />
+  <h2>步骤 7：上臂安装</h2>
+  <img src="assets/step-07-upper-arm.svg" alt="步骤7" />
+  <h2>步骤 8：肘部 MG996R + 前臂</h2>
+  <img src="assets/step-08-elbow.svg" alt="步骤8" />
+  <h2>步骤 9：夹爪 MG90S</h2>
+  <img src="assets/step-09-gripper.svg" alt="步骤9" />
+  <h2>步骤 10：接线与测试</h2>
+  <img src="assets/step-10-wiring.svg" alt="步骤10" />
+  <p class="note">生成时间：2026-03-25（Asia/Shanghai）</p>
+</body>
+</html>

@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .box { fill: #ffffff; stroke: #2b3a4b; stroke-width: 2; rx: 14; }
+      .title { font: 22px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 700; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .hint { font: 13px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="720" class="bg" />
+  <rect x="40" y="40" width="1120" height="640" class="box" />
+  <text x="70" y="90" class="title">步骤 9：夹爪 MG90S</text>
+  <text x="70" y="120" class="hint">夹爪舵机居中，安装夹爪两指。</text>
+    <rect x="200" y="250" width="90" height="90" class="box" />
+  <rect x="300" y="250" width="30" height="90" class="box" />
+  <rect x="160" y="250" width="30" height="90" class="box" />
+  <text x="210" y="305" class="small">MG90S</text>
+</svg>

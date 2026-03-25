@@ -8,6 +8,7 @@
 //          hand_left, hand_right
 
 part = is_undef(part) ? "assembly" : part;
+auto_run = is_undef(auto_run) ? true : auto_run;
 $fn = 48;
 
 wall = 2.4;
@@ -178,24 +179,26 @@ module assembly() {
   translate([shoulder_span / 2, 0, base_lift + base[2] + column[2] + chest[2] - 6 - arm_upper[2] - arm_lower[2]]) hand_block();
 }
 
-if (part == "assembly") assembly();
-if (part == "base_bottom") translate([0,0,0]) base_bottom();
-if (part == "base_top") translate([0,0,0]) base_top();
-if (part == "column_lower") translate([0,0,0]) column_block();
-if (part == "column_upper") translate([0,0,0]) column_block();
-if (part == "chest_left") chest_half("left");
-if (part == "chest_right") chest_half("right");
-if (part == "neck") neck_block();
-if (part == "head_top") head_half("left");
-if (part == "head_bottom") head_half("right");
-if (part == "wheel_left") wheel();
-if (part == "wheel_right") wheel();
-if (part == "wheel_mount_left") wheel_mount_block();
-if (part == "wheel_mount_right") wheel_mount_block();
-if (part == "arm_upper_left") arm_upper_block("left");
-if (part == "arm_upper_right") arm_upper_block("right");
-if (part == "arm_lower_left") arm_lower_block("left");
-if (part == "arm_lower_right") arm_lower_block("right");
-if (part == "hand_left") hand_block();
-if (part == "hand_right") hand_block();
+if (auto_run) {
+  if (part == "assembly") assembly();
+  if (part == "base_bottom") translate([0,0,0]) base_bottom();
+  if (part == "base_top") translate([0,0,0]) base_top();
+  if (part == "column_lower") translate([0,0,0]) column_block();
+  if (part == "column_upper") translate([0,0,0]) column_block();
+  if (part == "chest_left") chest_half("left");
+  if (part == "chest_right") chest_half("right");
+  if (part == "neck") neck_block();
+  if (part == "head_top") head_half("left");
+  if (part == "head_bottom") head_half("right");
+  if (part == "wheel_left") wheel();
+  if (part == "wheel_right") wheel();
+  if (part == "wheel_mount_left") wheel_mount_block();
+  if (part == "wheel_mount_right") wheel_mount_block();
+  if (part == "arm_upper_left") arm_upper_block("left");
+  if (part == "arm_upper_right") arm_upper_block("right");
+  if (part == "arm_lower_left") arm_lower_block("left");
+  if (part == "arm_lower_right") arm_lower_block("right");
+  if (part == "hand_left") hand_block();
+  if (part == "hand_right") hand_block();
+}
 

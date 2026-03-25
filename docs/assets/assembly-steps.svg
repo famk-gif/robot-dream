@@ -1,0 +1,51 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      .box { fill: #f5f7fb; stroke: #2b3a4b; stroke-width: 2; rx: 12; }
+      .title { font: 20px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 600; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .step { font: 16px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 600; }
+      .line { stroke: #2b3a4b; stroke-width: 2; fill: none; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#2b3a4b" />
+    </marker>
+  </defs>
+
+  <text x="40" y="40" class="title">装配步骤图解（一步到位）</text>
+
+  <rect x="60" y="80" width="480" height="80" class="box" />
+  <text x="80" y="115" class="step">1. 底盘下盖 + 电源座 + 开关</text>
+  <text x="80" y="140" class="label">先完成电源与线束主干</text>
+
+  <rect x="60" y="190" width="480" height="80" class="box" />
+  <text x="80" y="225" class="step">2. 轮子 + 支架 + 底盘上盖</text>
+  <text x="80" y="250" class="label">确认轮子在最下方承重</text>
+
+  <rect x="60" y="300" width="480" height="80" class="box" />
+  <text x="80" y="335" class="step">3. 立柱拼接</text>
+  <text x="80" y="360" class="label">保证垂直，线束走柱内</text>
+
+  <rect x="60" y="410" width="480" height="80" class="box" />
+  <text x="80" y="445" class="step">4. 胸腔安装（半封闭）</text>
+  <text x="80" y="470" class="label">为肩部舵机与走线预留空间</text>
+
+  <rect x="60" y="520" width="480" height="80" class="box" />
+  <text x="80" y="555" class="step">5. 肩部 MG996R 安装</text>
+  <text x="80" y="580" class="label">舵机居中后固定再接上臂</text>
+
+  <rect x="60" y="630" width="480" height="80" class="box" />
+  <text x="80" y="665" class="step">6. 肘部 MG996R + 前臂</text>
+  <text x="80" y="690" class="label">保证上臂与前臂同轴</text>
+
+  <rect x="60" y="740" width="480" height="80" class="box" />
+  <text x="80" y="775" class="step">7. 夹爪 MG90S + 线束整理</text>
+  <text x="80" y="800" class="label">最后封闭胸腔与底盘</text>
+
+  <line x1="300" y1="160" x2="300" y2="190" class="line" marker-end="url(#arrow)" />
+  <line x1="300" y1="270" x2="300" y2="300" class="line" marker-end="url(#arrow)" />
+  <line x1="300" y1="380" x2="300" y2="410" class="line" marker-end="url(#arrow)" />
+  <line x1="300" y1="490" x2="300" y2="520" class="line" marker-end="url(#arrow)" />
+  <line x1="300" y1="600" x2="300" y2="630" class="line" marker-end="url(#arrow)" />
+  <line x1="300" y1="710" x2="300" y2="740" class="line" marker-end="url(#arrow)" />
+</svg>

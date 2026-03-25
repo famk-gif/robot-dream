@@ -1,0 +1,62 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .box { fill: #f5f7fb; stroke: #2b3a4b; stroke-width: 2; rx: 10; }
+      .title { font: 18px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 600; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .line { stroke: #2b3a4b; stroke-width: 2; fill: none; }
+      .bus { fill: #e9eef6; stroke: #2b3a4b; stroke-width: 2; rx: 8; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#2b3a4b" />
+    </marker>
+  </defs>
+
+  <text x="40" y="40" class="title">电气布线图（双电源）</text>
+
+  <rect x="40" y="80" width="160" height="70" class="box" />
+  <text x="60" y="120" class="label">6V 10A 电源</text>
+
+  <rect x="250" y="80" width="140" height="70" class="box" />
+  <text x="270" y="120" class="label">电源开关</text>
+
+  <rect x="430" y="70" width="220" height="50" class="bus" />
+  <text x="450" y="100" class="label">舵机总线 +6V</text>
+
+  <rect x="430" y="140" width="220" height="50" class="bus" />
+  <text x="450" y="170" class="label">舵机总线 GND</text>
+
+  <rect x="700" y="60" width="220" height="160" class="box" />
+  <text x="720" y="95" class="label">舵机组</text>
+  <text x="720" y="120" class="small">MG996R 左肩 / 右肩</text>
+  <text x="720" y="140" class="small">MG996R 左肘 / 右肘</text>
+  <text x="720" y="160" class="small">MG90S 左夹爪 / 右夹爪</text>
+
+  <rect x="40" y="260" width="160" height="70" class="box" />
+  <text x="60" y="300" class="label">USB 5V</text>
+
+  <rect x="250" y="260" width="200" height="100" class="box" />
+  <text x="270" y="300" class="label">Pico 控制板</text>
+  <text x="270" y="325" class="small">GPIO2/3/4/5/6/7</text>
+
+  <text x="520" y="260" class="small">信号线</text>
+
+  <!-- power lines -->
+  <line x1="200" y1="115" x2="250" y2="115" class="line" marker-end="url(#arrow)" />
+  <line x1="390" y1="115" x2="430" y2="95" class="line" marker-end="url(#arrow)" />
+  <line x1="200" y1="115" x2="430" y2="165" class="line" marker-end="url(#arrow)" />
+
+  <line x1="650" y1="95" x2="700" y2="95" class="line" marker-end="url(#arrow)" />
+  <line x1="650" y1="165" x2="700" y2="165" class="line" marker-end="url(#arrow)" />
+
+  <!-- pico power -->
+  <line x1="200" y1="295" x2="250" y2="295" class="line" marker-end="url(#arrow)" />
+
+  <!-- pico signals -->
+  <line x1="450" y1="310" x2="700" y2="120" class="line" marker-end="url(#arrow)" />
+
+  <!-- ground link -->
+  <line x1="350" y1="360" x2="430" y2="165" class="line" marker-end="url(#arrow)" />
+  <text x="360" y="350" class="small">GND 共地</text>
+</svg>

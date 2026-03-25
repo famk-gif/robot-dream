@@ -1,0 +1,22 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .box { fill: #ffffff; stroke: #2b3a4b; stroke-width: 2; rx: 14; }
+      .title { font: 22px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 700; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .hint { font: 13px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="720" class="bg" />
+  <rect x="40" y="40" width="1120" height="640" class="box" />
+  <text x="70" y="90" class="title">步骤 2：轮子 + 支架</text>
+  <text x="70" y="120" class="hint">左右各装一组轮子与支架，轮子在最下方承重。</text>
+    <rect x="120" y="220" width="420" height="160" class="box" />
+  <text x="140" y="245" class="label">底盘</text>
+  <rect x="90" y="240" width="40" height="120" class="box" />
+  <circle cx="70" cy="300" r="30" fill="#dfe7f2" stroke="#2b3a4b" stroke-width="2" />
+  <rect x="540" y="240" width="40" height="120" class="box" />
+  <circle cx="610" cy="300" r="30" fill="#dfe7f2" stroke="#2b3a4b" stroke-width="2" />
+</svg>

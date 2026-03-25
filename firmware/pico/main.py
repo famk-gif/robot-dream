@@ -76,6 +76,103 @@ class Joint:
         self.servo.write_us(us)
 
 
+# Base drive (TB6612FNG or similar)
+BASE_ENABLED = True
+BASE_SPEED = 0.55
+TURN_SPEED = 0.55
+
+# TB6612FNG pins (Pico GPIO). Change if you wire differently.
+BASE_STBY = 8
+BASE_AIN1 = 9
+BASE_AIN2 = 10
+BASE_PWMA = 11
+BASE_BIN1 = 12
+BASE_BIN2 = 13
+BASE_PWMB = 14
+
+
+class DCMotor:
+    def __init__(self, in1, in2, pwm_pin, freq=1200):
+        self.in1 = Pin(in1, Pin.OUT)
+        self.in2 = Pin(in2, Pin.OUT)
+        self.pwm = PWM(Pin(pwm_pin))
+        self.pwm.freq(freq)
+        self.speed = 0.0
+        self.set(0.0)
+
+    def set(self, value):
+        value = clamp(value, -1.0, 1.0)
+        if abs(value) < 0.001:
+            self.in1.value(0)
+            self.in2.value(0)
+            self.pwm.duty_u16(0)
+            self.speed = 0.0
+            return
+        if value > 0:
+            self.in1.value(1)
+            self.in2.value(0)
+        else:
+            self.in1.value(0)
+            self.in2.value(1)
+        duty = int(abs(value) * 65535)
+        self.pwm.duty_u16(duty)
+        self.speed = value
+
+
+class BaseDrive:
+    def __init__(self, enabled=True):
+        self.enabled = enabled
+        self.base_speed = BASE_SPEED
+        self.turn_speed = TURN_SPEED
+        if not enabled:
+            self.left = None
+            self.right = None
+            return
+        self.stby = Pin(BASE_STBY, Pin.OUT)
+        self.stby.value(1)
+        self.left = DCMotor(BASE_AIN1, BASE_AIN2, BASE_PWMA)
+        self.right = DCMotor(BASE_BIN1, BASE_BIN2, BASE_PWMB)
+
+    def stop(self):
+        if not self.enabled:
+            return
+        self.left.set(0.0)
+        self.right.set(0.0)
+
+    def forward(self):
+        if not self.enabled:
+            return
+        self.left.set(self.base_speed)
+        self.right.set(self.base_speed)
+
+    def reverse(self):
+        if not self.enabled:
+            return
+        self.left.set(-self.base_speed)
+        self.right.set(-self.base_speed)
+
+    def turn_left(self):
+        if not self.enabled:
+            return
+        self.left.set(-self.turn_speed)
+        self.right.set(self.turn_speed)
+
+    def turn_right(self):
+        if not self.enabled:
+            return
+        self.left.set(self.turn_speed)
+        self.right.set(-self.turn_speed)
+
+    def set_speed(self, value):
+        self.base_speed = clamp(value, 0.1, 1.0)
+
+    def set_turn_speed(self, value):
+        self.turn_speed = clamp(value, 0.1, 1.0)
+
+
+base_drive = BaseDrive(enabled=BASE_ENABLED)
+
+
 # Joint config (angles in degrees, speeds in deg/s, accel in deg/s^2)
 # Tuned for more human-like motion (slower, smoother)
 SHOULDER_SPEED = 70
@@ -100,6 +197,14 @@ KEYMAP = {
     "c": ("right_elbow", 1.5),
     "q": ("left_gripper", 1.0),
     "e": ("right_gripper", 1.0),
+}
+
+BASEMAP = {
+    "i": "forward",
+    "k": "reverse",
+    "j": "left",
+    "l": "right",
+    "x": "stop",
 }
 
 
@@ -165,6 +270,7 @@ def reset_pose():
     JOINTS["right_elbow"].target = 5
     JOINTS["left_gripper"].target = 10
     JOINTS["right_gripper"].target = 10
+    base_drive.stop()
 
 
 def apply_key(key):
@@ -181,6 +287,20 @@ def apply_key(key):
         # Hold current pose immediately (stop moving toward any target)
         for j in JOINTS.values():
             j.target = j.angle
+        base_drive.stop()
+        return
+    if key in BASEMAP:
+        action = BASEMAP[key]
+        if action == "forward":
+            base_drive.forward()
+        elif action == "reverse":
+            base_drive.reverse()
+        elif action == "left":
+            base_drive.turn_left()
+        elif action == "right":
+            base_drive.turn_right()
+        elif action == "stop":
+            base_drive.stop()
         return
     if key in KEYMAP:
         joint_name, step = KEYMAP[key]
@@ -194,6 +314,30 @@ def apply_line(line):
     parts = line.strip().split()
     if len(parts) == 1:
         apply_key(parts[0])
+        return
+    if parts[0] == "base":
+        if len(parts) == 2:
+            cmd = parts[1]
+            if cmd == "forward":
+                base_drive.forward()
+            elif cmd == "reverse":
+                base_drive.reverse()
+            elif cmd == "left":
+                base_drive.turn_left()
+            elif cmd == "right":
+                base_drive.turn_right()
+            elif cmd == "stop":
+                base_drive.stop()
+        elif len(parts) == 3:
+            cmd = parts[1]
+            try:
+                value = float(parts[2])
+            except Exception:
+                return
+            if cmd == "speed":
+                base_drive.set_speed(value)
+            elif cmd == "turn":
+                base_drive.set_turn_speed(value)
         return
     if parts[0] == "set" and len(parts) == 3:
         name = parts[1]

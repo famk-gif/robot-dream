@@ -1,0 +1,20 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .box { fill: #ffffff; stroke: #2b3a4b; stroke-width: 2; rx: 14; }
+      .title { font: 22px 'Segoe UI', Arial, sans-serif; fill: #1b2533; font-weight: 700; }
+      .label { font: 14px 'Segoe UI', Arial, sans-serif; fill: #1b2533; }
+      .small { font: 12px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+      .hint { font: 13px 'Segoe UI', Arial, sans-serif; fill: #42566b; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1200" height="720" class="bg" />
+  <rect x="40" y="40" width="1120" height="640" class="box" />
+  <text x="70" y="90" class="title">步骤 4：立柱拼接</text>
+  <text x="70" y="120" class="hint">先装下段，再装上段，确认垂直。</text>
+    <rect x="280" y="220" width="120" height="140" class="box" />
+  <rect x="280" y="370" width="120" height="140" class="box" />
+  <text x="430" y="280" class="label">立柱下段</text>
+  <text x="430" y="430" class="label">立柱上段</text>
+</svg>
