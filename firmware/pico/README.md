@@ -70,3 +70,19 @@ GPIO 线序（舵机）：
    - 底盘：方向键（前进/后退/左转/右转）
    - 其它：h / r / s / x（base stop）
 4. 无硬件演示：python keyboard_control.py --dry-run（只打印指令，不发串口）
+## 7. 语音控制（电脑端）
+1. 安装依赖：pip install vosk sounddevice pyserial
+2. 下载一个支持中英文的 Vosk 模型，并放到：
+   firmware/pico/models/vosk
+   或设置环境变量 VOSK_MODEL 指向模型目录。
+3. 运行：python voice_control.py COM3
+4. 无硬件演示：python voice_control.py --dry-run
+
+语音示例：
+- “你好 / hello” -> hi
+- “左肩 / left shoulder” -> a
+- “右肘 / right elbow” -> c
+- “前进 / forward” -> base forward
+- “停止 / stop” -> stop
+
+可选：将 `WAKE_ENABLED = True` 打开后，需要说“robot / 机器人”作为唤醒词。
