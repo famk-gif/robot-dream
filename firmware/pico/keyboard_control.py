@@ -64,7 +64,8 @@ class Sender:
             pass
 
 
-STOP_TIMEOUT_S = 0.2
+STOP_TIMEOUT_S = 0.12
+REPEAT_INTERVAL_S = 0.06
 
 
 def print_help(dry_run):
@@ -76,7 +77,9 @@ def print_help(dry_run):
     print("  s -> stop")
     print("  x -> base stop")
     print("  ESC -> exit")
+    print("  Tip: press a/d/z/c/q/e to test joints")
     print("  Tip: press arrow keys to test base control")
+    print("  Tip: Shift key is not bound (reserved)")
     if dry_run:
         print("  DRY RUN: commands are printed, no serial output")
 
@@ -98,6 +101,8 @@ def main():
     print_help(dry_run)
 
     last_move_time = 0.0
+    last_repeat_time = 0.0
+    last_move_cmd = None
     stop_sent = False
 
     try:
@@ -112,18 +117,26 @@ def main():
                     if arrow == b'H':  # up
                         sender.send('base forward')
                         last_move_time = now
+                        last_repeat_time = now
+                        last_move_cmd = 'base forward'
                         stop_sent = False
                     elif arrow == b'P':  # down
                         sender.send('base reverse')
                         last_move_time = now
+                        last_repeat_time = now
+                        last_move_cmd = 'base reverse'
                         stop_sent = False
                     elif arrow == b'K':  # left
                         sender.send('base left')
                         last_move_time = now
+                        last_repeat_time = now
+                        last_move_cmd = 'base left'
                         stop_sent = False
                     elif arrow == b'M':  # right
                         sender.send('base right')
                         last_move_time = now
+                        last_repeat_time = now
+                        last_move_cmd = 'base right'
                         stop_sent = False
                     continue
                 try:
@@ -134,20 +147,33 @@ def main():
                 if key in KEYMAP:
                     sender.send(KEYMAP[key])
                     last_move_time = now
+                    last_repeat_time = now
+                    last_move_cmd = KEYMAP[key]
                     stop_sent = False
                 elif key in SPECIAL:
                     sender.send(SPECIAL[key])
                     last_move_time = 0.0
+                    last_move_cmd = None
                     stop_sent = False
                 elif key == 'x':
                     sender.send('base stop')
                     last_move_time = 0.0
+                    last_move_cmd = None
                     stop_sent = False
 
+            if last_move_time > 0.0 and last_move_cmd and (now - last_repeat_time) >= REPEAT_INTERVAL_S:
+                sender.send(last_move_cmd)
+                last_repeat_time = now
+                stop_sent = False
+
             if last_move_time > 0.0 and not stop_sent and (now - last_move_time) > STOP_TIMEOUT_S:
-                sender.send("stop")
+                if last_move_cmd and last_move_cmd.startswith("base "):
+                    sender.send("base stop")
+                else:
+                    sender.send("stop")
                 stop_sent = True
                 last_move_time = 0.0
+                last_move_cmd = None
 
             time.sleep(0.01)
     finally:
