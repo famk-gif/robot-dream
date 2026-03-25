@@ -76,6 +76,7 @@ def print_help(dry_run):
     print("  s -> stop")
     print("  x -> base stop")
     print("  ESC -> exit")
+    print("  Tip: press arrow keys to test base control")
     if dry_run:
         print("  DRY RUN: commands are printed, no serial output")
 
@@ -106,6 +107,25 @@ def main():
                 ch = msvcrt.getch()
                 if ch in (b'\x1b',):
                     break
+                if ch in (b'\xe0', b'\x00'):
+                    arrow = msvcrt.getch()
+                    if arrow == b'H':  # up
+                        sender.send('base forward')
+                        last_move_time = now
+                        stop_sent = False
+                    elif arrow == b'P':  # down
+                        sender.send('base reverse')
+                        last_move_time = now
+                        stop_sent = False
+                    elif arrow == b'K':  # left
+                        sender.send('base left')
+                        last_move_time = now
+                        stop_sent = False
+                    elif arrow == b'M':  # right
+                        sender.send('base right')
+                        last_move_time = now
+                        stop_sent = False
+                    continue
                 try:
                     key = ch.decode('utf-8').lower()
                 except Exception:
@@ -122,24 +142,6 @@ def main():
                 elif key == 'x':
                     sender.send('base stop')
                     last_move_time = 0.0
-                    stop_sent = False
-            elif ch in (b'\xe0', b'\x00'):
-                arrow = msvcrt.getch()
-                if arrow == b'H':  # up
-                    sender.send('base forward')
-                    last_move_time = now
-                    stop_sent = False
-                elif arrow == b'P':  # down
-                    sender.send('base reverse')
-                    last_move_time = now
-                    stop_sent = False
-                elif arrow == b'K':  # left
-                    sender.send('base left')
-                    last_move_time = now
-                    stop_sent = False
-                elif arrow == b'M':  # right
-                    sender.send('base right')
-                    last_move_time = now
                     stop_sent = False
 
             if last_move_time > 0.0 and not stop_sent and (now - last_move_time) > STOP_TIMEOUT_S:
