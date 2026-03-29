@@ -818,6 +818,112 @@
     }
   }
 
+  const voiceControl = {
+    enabled: true,
+    pollInterval: 200,
+    pulseMs: 420,
+    lastSeq: 0,
+  };
+
+  const pulseTimers = new Map();
+
+  function pressKey(code) {
+    if (!pressed.has(code)) {
+      pressed.add(code);
+      setKeyActive(code, true);
+    }
+  }
+
+  function releaseKey(code) {
+    if (pressed.has(code)) {
+      pressed.delete(code);
+      setKeyActive(code, false);
+    }
+  }
+
+  function pulseKey(code, ms = voiceControl.pulseMs) {
+    pressKey(code);
+    if (pulseTimers.has(code)) {
+      clearTimeout(pulseTimers.get(code));
+    }
+    pulseTimers.set(code, setTimeout(() => releaseKey(code), ms));
+  }
+
+  function stopAllMotion() {
+    Array.from(pressed).forEach((key) => releaseKey(key));
+    pressed.clear();
+    clearResetCountdown();
+    resetStatus.textContent = 'Ready';
+    stopResetSequence();
+    state.baseMotion = 'idle';
+  }
+
+  function applyCommand(cmd) {
+    if (!cmd) return;
+    if (cmd === 'hi') {
+      startWaveGesture();
+      return;
+    }
+    if (cmd === 'reset') {
+      resetPose();
+      return;
+    }
+    if (cmd === 'stop') {
+      stopAllMotion();
+      return;
+    }
+    if (cmd === 'base stop') {
+      ['arrowup', 'arrowleft', 'arrowright', 'shift'].forEach(releaseKey);
+      state.baseMotion = 'idle';
+      return;
+    }
+    if (cmd === 'base forward') {
+      pulseKey('arrowup');
+      return;
+    }
+    if (cmd === 'base reverse') {
+      pressKey('shift');
+      pressKey('arrowup');
+      setTimeout(() => {
+        releaseKey('arrowup');
+        releaseKey('shift');
+      }, voiceControl.pulseMs);
+      return;
+    }
+    if (cmd === 'base left') {
+      pulseKey('arrowleft');
+      return;
+    }
+    if (cmd === 'base right') {
+      pulseKey('arrowright');
+      return;
+    }
+    if (['a', 'd', 'z', 'c', 'q', 'e'].includes(cmd)) {
+      pulseKey(cmd);
+    }
+  }
+
+  async function pollVoiceCommands() {
+    if (!voiceControl.enabled) return;
+    try {
+      const res = await fetch(`runtime/voice_command.json?ts=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('no file');
+      const data = await res.json();
+      if (data && data.seq && data.seq !== voiceControl.lastSeq) {
+        voiceControl.lastSeq = data.seq;
+        if (Array.isArray(data.cmds)) {
+          data.cmds.forEach((cmd) => applyCommand(cmd));
+        }
+      }
+    } catch (err) {
+      // ignore until file exists
+    }
+    setTimeout(pollVoiceCommands, voiceControl.pollInterval);
+  }
+
+  pollVoiceCommands();
+  window.applyCommand = applyCommand;
+
   function updateMotion() {
     const reverse = pressed.has('shift');
     state.baseMotion = 'idle';

@@ -92,3 +92,37 @@ GPIO 线序（舵机）：
 3. 未说明左右时默认右侧。  
 
 可选：将 `WAKE_ENABLED = True` 打开后，需要说“robot / 机器人”作为唤醒词。
+
+## 8. 语音 + LLM 控制（电脑端）
+1. 安装依赖：pip install vosk sounddevice pyserial requests
+2. 下载一个支持中英文的 Vosk 模型，并放到：
+   firmware/pico/models/vosk
+   或设置环境变量 VOSK_MODEL 指向模型目录。
+3. 本地 LLM 使用 Ollama 风格接口：
+   - URL: http://localhost:11434/api/chat
+   - 模型：qwen3.5:0.8b（可用 LLM_MODEL 环境变量替换）
+4. 运行：python voice_llm_control.py COM3
+5. 无硬件演示：python voice_llm_control.py --dry-run
+
+说明：
+- 语音识别到文本后，会调用本地 LLM 输出“动作命令”。
+- LLM 只允许输出：hi / reset / stop / a d z c q e / base forward/reverse/left/right/stop。
+- 默认去抖，避免连续重复触发。
+- 如需修改接口地址：设置 LLM_URL 环境变量。
+- 现在需要唤醒词：必须包含“`小智同学`”才会执行（只解析唤醒词后面的语句）。
+- 支持轻微识别误差（如同音字），会尝试模糊匹配唤醒词。
+- 若 LLM 输出非标准命令，会使用关键词做兜底映射（如“你好/挥手”-> hi）。
+
+多动作支持：
+- 如果一句话里有多个动作，LLM 会输出多行命令，脚本会按顺序执行。
+- 示例：\"前进 然后 后退 再 左转\" -> base forward / base reverse / base left
+
+## 9. 虚拟网页联动（可选）
+1. 启动本地网页：python -m http.server 8123
+2. 浏览器打开：http://localhost:8123/robot-virtual.html
+3. 运行：python voice_llm_control.py --dry-run
+
+说明：
+- 脚本会写入 `runtime/voice_command.json`，网页每 200ms 轮询并触发动作。
+- 关闭联动：设置 `VIRTUAL_ENABLED=0`
+- 自定义输出位置：设置 `VIRTUAL_OUT` 为完整文件路径

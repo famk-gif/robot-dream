@@ -4,4 +4,8 @@ Snipaste-*.zip
 Snipaste/
 tools/
 previews/
+runtime/
+firmware/pico/models/
+firmware/pico/__pycache__/
+*.pyc
 

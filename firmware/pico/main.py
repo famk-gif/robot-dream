@@ -296,6 +296,7 @@ def reset_pose():
     base_drive.stop()
 
 
+# 命令入口：处理单条指令（如 a / hi / base forward）
 def apply_key(key):
     key = key.lower()
     if key == "hi":
@@ -331,6 +332,7 @@ def apply_key(key):
         j.target = clamp(j.target + step, j.angle_min, j.angle_max)
 
 
+# 命令入口：处理串口收到的一整行
 def apply_line(line):
     if not line:
         return
@@ -374,6 +376,7 @@ def apply_line(line):
         return
 
 
+# 串口读取 + 动作更新主循环（执行出口）
 poll = uselect.poll()
 poll.register(sys.stdin, uselect.POLLIN)
 rx_buf = ""
